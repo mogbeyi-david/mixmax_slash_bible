@@ -35,5 +35,5 @@ var handleSearchQuery = function(term, req, res){
 	var r_data = result.body;
 	var data = JSON.parse(r_data).response.search.result.passages[0].text;
 	console.log(data);
-	return res.json({'body': data });
+	return res.json({'body': '<div style="width:100%;">'+data+'</div>' });
 }
