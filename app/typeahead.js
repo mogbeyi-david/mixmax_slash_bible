@@ -25,15 +25,15 @@ module.exports = function(req,res){
 function analyseString(res,input){
 	var data = input.split(":");
 	if(data.length == 1){
-		return getBooks(res);
+		return getBooks(res,input);
 	} else if(data.length == 2){
 		return getChapters(res, input);
 	} else if(data.length == 3){
-		return getVerses(res);
+		return getVerses(res,input);
 	}
 }
 
-function getBooks(res){
+function getBooks(res,input){
 	try {
 		response = sync.await(request('https://bibles.org/v2/versions/eng-GNTD/books.js',sync.defer()).auth(config.api_key,'password',true));
 	} catch(e){
@@ -48,20 +48,27 @@ function getBooks(res){
 
 	var results = _.chain((JSON.parse(response.body)).response.books)
 				.reject(function(item){
-					return !item.name || !item;
+					var name = item.name.indexOf(input);
+
+					return name  > -1;
 				})
 				.map(function(item){
 					return {
-						text : item.name
+						title : '<i>'+item.name+'</i>',
+						text : '<i>'+item.name+'</i>'
 					}
+
 				}).value();
+
 	if(results.length === 0){
 		res.json([{
 			title: '<i>(no results)</i>',
 			text: ''
 		}]);
 	} else {
-		res.json(results);
+		console.log("get Books");
+		console.log(results);
+		res.json([results]);
 	}
 }
 
@@ -95,16 +102,20 @@ function getChapters(res, input){
 				})
 				.map(function(item){
 					return {
+						title: '<i>'+item.chapter+'</i>',
 						text : '<i>'+item.chapter+'</i>'
 					}
 				}).value();
+				
 	if(results.length === 0){
 		res.json([{
 			title: '<i>(no results)</i>',
 			text: ''
 		}]);
 	} else {
-		res.json(results);
+		console.log("chapters");
+		console.log(results);
+		res.json([results]);
 	}
 }
 
